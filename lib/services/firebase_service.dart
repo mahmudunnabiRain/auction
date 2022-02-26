@@ -1,5 +1,7 @@
 
 
+import 'dart:io';
+
 import 'package:alpha/providers/main_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -7,14 +9,16 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:global_snack_bar/global_snack_bar.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:loader_overlay/src/overlay_controller_widget_extension.dart';
 import 'package:provider/src/provider.dart';
+import 'package:uuid/uuid.dart';
 
 class FirebaseService {
   final FirebaseFirestore _fireStore;
-  final FirebaseStorage storage;
+  final FirebaseStorage _firebaseStorage;
   final FirebaseAuth _fireBaseAuth;
   final GoogleSignIn _googleSignIn;
-  FirebaseService(this._fireStore, this.storage, this._fireBaseAuth, this._googleSignIn);
+  FirebaseService(this._fireStore, this._firebaseStorage, this._fireBaseAuth, this._googleSignIn);
 
   Stream<User?> authStateChanges() {
     return _fireBaseAuth.authStateChanges();
@@ -57,46 +61,54 @@ class FirebaseService {
   }
 
 
-  Future<String> signIn(String email, String password) async {
-    try{
-      await _fireBaseAuth.signInWithEmailAndPassword(email: email, password: password);
-      return "Signed In";
-    } on FirebaseAuthException catch(e) {
-      if (e.code == 'user-not-found') {
-        return 'No user found for that email.';
-      } else if (e.code == 'wrong-password') {
-        return 'Wrong password provided for that user.';
-      }
-      else {
-        return "SignIn Failed for unknown reason";
-      }
-    }
-  }
-
-  Future<String> signUp(String email, String password) async {
-    try {
-      UserCredential userCredential = await _fireBaseAuth.createUserWithEmailAndPassword(
-          email: email,
-          password: password
-      );
-      return "Signed Up";
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        return 'The password provided is too weak.';
-      } else if (e.code == 'email-already-in-use') {
-        return 'The account already exists for that email.';
-      } else {
-        return "SignIn Failed for unknown reason";
-      }
-    }
-  }
-
   Future<void> signOut() async {
     await _fireBaseAuth.signOut().then( (_) {
       _googleSignIn.signOut();
     });
   }
 
+  Future<void> postAuctionItem(BuildContext context, String productName, String productDesc, List productPhoto, String minimumBidPrice, DateTime endDate) async {
+    context.loaderOverlay.show();
+    var uid = _fireBaseAuth.currentUser?.uid;
+    var sellerName = _fireBaseAuth.currentUser?.displayName;
+    File file = File(productPhoto.first.path);
+    var imageRef = _firebaseStorage.ref(const Uuid().v4());
+    try {
+      await imageRef.putFile(file);
+      var imageUrl = await imageRef.getDownloadURL();
+      // Call the auction's CollectionReference to add a new auction
+      CollectionReference auctions = _fireStore.collection('auction');
+      return await auctions
+          .add({
+        'uid': uid,
+        'seller_name': sellerName,
+        'product_name': productName,
+        'product_desc': productDesc,
+        'product_photo': imageUrl,
+        'minimum_bid_price': minimumBidPrice,
+        'end_date': endDate,
+      }).then((value) {
+        context.loaderOverlay.hide();
+        GlobalSnackBarBloc.showMessage(
+          GlobalMsg("Your auction item has been published.", bgColor: Colors.green),
+        );
+      });
+    }
+    on FirebaseException catch (e) {
+      context.loaderOverlay.hide();
+      GlobalSnackBarBloc.showMessage(GlobalMsg("Failed to post auction-item.", bgColor: Colors.red),);
+    }
+  }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> watchAuctions(){
+    return _fireStore.collection('auction').snapshots();
+  }
+  Stream<QuerySnapshot<Map<String, dynamic>>> watchMyAuctions(){
+    var uid = _fireBaseAuth.currentUser?.uid;
+    return _fireStore.collection('auction')
+      .where('uid', isEqualTo: uid)
+      .snapshots();
+  }
 
 }
 

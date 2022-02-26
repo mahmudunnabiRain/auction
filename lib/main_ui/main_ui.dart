@@ -1,10 +1,10 @@
-import 'package:alpha/main_ui/tabs/dashboard_tab/dashboard.dart';
+import 'package:alpha/main_ui/tabs/dashboard.dart';
 import 'package:alpha/services/firebase_service.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:alpha/components/app_bar.dart';
-import 'package:alpha/main_ui/tabs/auction_tab/auction.dart';
-import 'package:alpha/main_ui/tabs/profile_tab/profile.dart';
+import 'package:alpha/main_ui/tabs/auction.dart';
+import 'package:alpha/main_ui/tabs/profile.dart';
 import 'package:alpha/providers/main_provider.dart';
 import 'package:global_snack_bar/global_snack_bar.dart';
 import 'package:provider/provider.dart';

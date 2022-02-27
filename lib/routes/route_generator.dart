@@ -1,3 +1,4 @@
+import 'package:alpha/pages/auction_details.dart';
 import 'package:alpha/pages/my_auctions.dart';
 import 'package:alpha/pages/post_auction.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,8 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (_) => const AuctionPostPage());
       case '/my-auctions':
         return MaterialPageRoute(builder: (_) => const MyAuctionsPage());
+      case '/auction-details':
+        return MaterialPageRoute(builder: (_) => AuctionDetailsPage(documentId: args));
       default:
         return _errorRoute();
     }

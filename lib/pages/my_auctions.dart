@@ -63,6 +63,9 @@ class _MyAuctionsPageState extends State<MyAuctionsPage> {
                     return Card(
                       child: ListTile(
                         isThreeLine: true,
+                        onTap: () {
+                          Navigator.of(context).pushNamed('/auction-details', arguments: document.id);
+                        },
                         leading: Container(
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(2),

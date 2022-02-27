@@ -67,7 +67,7 @@ class FirebaseService {
     });
   }
 
-  Future<void> postAuctionItem(BuildContext context, String productName, String productDesc, List productPhoto, String minimumBidPrice, DateTime endDate) async {
+  Future<void> postAuctionItem(BuildContext context, String productName, String productDesc, List productPhoto, double minimumBidPrice, DateTime endDate) async {
     context.loaderOverlay.show();
     var uid = _fireBaseAuth.currentUser?.uid;
     var sellerName = _fireBaseAuth.currentUser?.displayName;
@@ -100,14 +100,51 @@ class FirebaseService {
     }
   }
 
+  Future<void> submitBid(BuildContext context, String documentId, double bidPrice) async {
+    context.loaderOverlay.show();
+    var uid = _fireBaseAuth.currentUser?.uid;
+    var buyerName = _fireBaseAuth.currentUser?.displayName;
+    try {
+      // Call the auction's CollectionReference to add a new auction
+      CollectionReference auctions = _fireStore.collection('auction').doc(documentId).collection('bids');
+      return await auctions
+          .add({
+        'uid': uid,
+        'buyer_name': buyerName,
+        'bid_price': bidPrice
+      }).then((value) {
+        context.loaderOverlay.hide();
+        GlobalSnackBarBloc.showMessage(
+          GlobalMsg("Your bid has been submitted.", bgColor: Colors.green),
+        );
+      });
+    }
+    on FirebaseException catch (e) {
+      context.loaderOverlay.hide();
+      GlobalSnackBarBloc.showMessage(GlobalMsg("Failed to submit bid.", bgColor: Colors.red),);
+    }
+  }
+
   Stream<QuerySnapshot<Map<String, dynamic>>> watchAuctions(){
     return _fireStore.collection('auction').snapshots();
+  }
+  Stream<DocumentSnapshot<Map<String, dynamic>>> watchAuctionById(String documentId){
+    return _fireStore.collection('auction').doc(documentId).snapshots();
+  }
+  Stream<QuerySnapshot<Map<String, dynamic>>> watchSubmittedBids(String documentId){
+    return _fireStore.collection('auction').doc(documentId).collection('bids').orderBy('bid_price', descending: true).snapshots();
   }
   Stream<QuerySnapshot<Map<String, dynamic>>> watchMyAuctions(){
     var uid = _fireBaseAuth.currentUser?.uid;
     return _fireStore.collection('auction')
       .where('uid', isEqualTo: uid)
       .snapshots();
+  }
+
+  Future<DateTime> getEndDate(String documentId) async {
+    var doc = await _fireStore.collection('auction').doc(documentId).get();
+    DateTime endDate = doc['end_date'].toDate();
+    return endDate;
   }
 
 }

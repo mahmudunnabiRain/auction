@@ -117,7 +117,7 @@ class _AuctionPostPageState extends State<AuctionPostPage> {
                           name: 'end_date',
                           // onChanged: _onChanged,
                           inputType: InputType.date,
-                          decoration: customInputDecoration('End Date'),
+                          decoration: customInputDecoration('Auction End Date'),
                           initialDate: DateTime.now(),
                           firstDate: DateTime.now(),
                           // initialValue: DateTime.now(),
@@ -142,10 +142,10 @@ class _AuctionPostPageState extends State<AuctionPostPage> {
                         _formKey.currentState.save();
                         if (_formKey.currentState.validate()) {
                           print(_formKey.currentState.value);
-                          var productName = _formKey.currentState.value['product_name'];
-                          var productDesc = _formKey.currentState.value['product_desc'];
-                          var productPhoto = _formKey.currentState.value['product_photo'];
-                          var minimumBidPrice = _formKey.currentState.value['minimum_bid_price'];
+                          String productName = _formKey.currentState.value['product_name'];
+                          String productDesc = _formKey.currentState.value['product_desc'];
+                          List productPhoto = _formKey.currentState.value['product_photo'];
+                          double minimumBidPrice = double.parse(_formKey.currentState.value['minimum_bid_price']);
                           var endDate = _formKey.currentState.value['end_date'];
                           // upload auction-item information
                           await context.read<FirebaseService>().postAuctionItem(

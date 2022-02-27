@@ -143,6 +143,7 @@ class _AuctionDetailsPageState extends State<AuctionDetailsPage> {
                 );
               },
             ),
+            const SizedBox(height: 8,),
             Visibility(
               visible: bidFormVisibility,
               child: Card(
@@ -221,7 +222,7 @@ class _AuctionDetailsPageState extends State<AuctionDetailsPage> {
                               children: [
                                 Container(
                                   decoration: BoxDecoration(
-                                      border: Border.all()
+                                    border: Border.all(color: Colors.grey),
                                   ),
                                   child: ListTile(
                                     onTap: () {

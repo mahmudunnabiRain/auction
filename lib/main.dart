@@ -66,6 +66,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(2),
       ),
+      color: HexColor('#ebebeb'),
       elevation: 3
     ),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(

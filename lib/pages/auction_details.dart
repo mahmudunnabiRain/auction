@@ -57,6 +57,15 @@ class _AuctionDetailsPageState extends State<AuctionDetailsPage> {
     );
   }
 
+  bool ifWinner(price, maxPrice) {
+    double p1 = price;
+    double p2 = maxPrice['bid_price'];
+    if(p1 == p2) {
+      return true;
+    }
+    return false;
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -219,6 +228,7 @@ class _AuctionDetailsPageState extends State<AuctionDetailsPage> {
 
                                     },
                                     title: Text('\$ ${data['bid_price'].toString()} -- ${data['buyer_name']}'),
+                                    trailing: ifWinner(data['bid_price'], snapshot.data!.docs[0].data() as Map<String, dynamic>)? Icon(Icons.favorite, color: context.watch<MainModel>().appColor,) : null,
                                   ),
                                 ),
                                 const SizedBox(height: 4,),
